@@ -5,6 +5,5 @@ data class Location(
     val longitude: Double,
     val timestamp: Long)
 {
-    // Default constructor required for Firebase deserialization
     constructor() : this(0.0, 0.0, 0L)
 }

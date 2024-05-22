@@ -3,6 +3,7 @@ package com.example.buse_student
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -24,20 +25,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.buse_student.ui.theme.BusEStudentTheme
+import com.google.firebase.FirebaseApp
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MapsReading"
+
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        userID.androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        FirebaseApp.initializeApp(this)
         val database = Firebase.database
         val myRef = database.getReference("locations")
+        Firebase.messaging.isAutoInitEnabled = true
+
+
+        val workRequest = PeriodicWorkRequestBuilder<FcmTokenWorker>(5, TimeUnit.HOURS)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "FetchAndStoreFcmToken",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
 
         NotificationUtils.createNotificationChannel(this)
 

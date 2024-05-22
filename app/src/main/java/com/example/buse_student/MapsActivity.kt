@@ -30,7 +30,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMaps1Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -50,17 +49,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Example usage of updateMarker
-        // updateMarker("{\"latitude\":20.2457293,\"longitude\":85.8015816,\"timestamp\":1716240352534}")
-
-        // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
-        // Set up listener for database changes
+
         val database = Firebase.database
         val myRef = database.getReference("locations")
+
         myRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -83,20 +79,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var currentMarker: Marker? = null
 
     private fun updateMarker(location: Location) {
-        // Remove the current marker if it exists
         currentMarker?.remove()
-
-        // Create a new LatLng object with the updated location
         val latLng = LatLng(location.latitude, location.longitude)
-
-        // Create a new marker options object
         val markerOptions = MarkerOptions().position(latLng)
-
-        // Add a new marker at the updated location
         currentMarker = mMap.addMarker(markerOptions)
-
-        // Move the camera to the new marker's location
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f)) // Adjust zoom level as needed
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
 
     }
 }
